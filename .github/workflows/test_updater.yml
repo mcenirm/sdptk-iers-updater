@@ -27,10 +27,12 @@ jobs:
             args+=( --header "PRIVATE-TOKEN: ${{ secrets.PRIVATE_TOKEN }}" )
           fi
           curl "${args[@]}" '${{ secrets.SDPTK_TARGZ_URL }}'
+          ls -l sdptk-*.tar.gz
 
       - name: Install SDPTK
         shell: bash
         run: |
+          shopt -s failglob
           tar xf sdptk-*.tar.gz -C /usr/local
           du -hs /usr/local/sdptk
 
