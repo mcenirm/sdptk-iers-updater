@@ -28,6 +28,7 @@ jobs:
           fi
           curl "${args[@]}" '${{ secrets.SDPTK_TARGZ_URL }}'
           ls -l sdptk-*.tar.gz
+          tar tf sdptk-*.tar.gz || head sdptk-*.tar.gz
 
       - name: Install SDPTK
         shell: bash
