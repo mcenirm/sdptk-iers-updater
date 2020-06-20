@@ -1,0 +1,32 @@
+# Edit this file
+#  * Replace placeholders marked by {{ ... }}
+#  * Uncomment blocks as needed
+#
+# Caution: This file is parsed by Bash's "source" command.
+# Prefix convenience variables with "_" to avoid collisions.
+
+
+# Required section #########################################
+
+# Full urls to IERS inputs
+url_to_tai_utc_dat='{{ .../tai-utc.dat }}'
+url_to_finals_data='{{ .../finals.data }}'
+
+
+# Examples #################################################
+
+# Earthdata Login example
+#   (Be sure to prepare $HOME/.netrc)
+#_cookie_jar=$HOME/.edl_cookies
+#touch -- "$_cookie_jar"
+#extra_curl_options=(
+#    --netrc
+#    --cookie     "$_cookie_jar"
+#    --cookie-jar "$_cookie_jar"
+#    --location 
+#)
+
+# FTP-with-explict-TLS example
+#extra_curl_options=(
+#    --ssl
+#)
