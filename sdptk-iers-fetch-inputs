@@ -1,0 +1,59 @@
+#!/bin/bash
+set -euo pipefail
+
+Usage () { cat >&2 <<EOF
+Usage: $0 SETTINGS_FILE
+Fetch IERS data files for use by SDPTK updaters
+Where:
+  SETTINGS_FILE  is the path to a *.inc file
+EOF
+}
+
+: "${PGSHOME:?Environment is not initialized correctly. See pgs-env}"
+
+while [ $# -gt 0 ]
+do
+  case "$1" in
+  --) shift ; break ;;
+  -*) Usage ; exit 1 ;;
+  *) break ;;
+  esac
+done
+if [ $# -ne 1 ]
+then
+  Usage
+  exit 1
+fi
+
+settings_file=$1
+declare -a extra_curl_options
+source -- "$settings_file"
+
+: "${url_to_tai_utc_dat:?Check settings file}"
+: "${url_to_finals_data:?Check settings file}"
+
+curl_args=(
+    --silent
+    --show-error
+    --remote-time
+)
+
+if [ "${#extra_curl_options[@]}" -gt 0 ]
+then
+  curl_args+=( "${extra_curl_options[@]}" )
+fi
+
+for datadir___filename in TD___tai-utc.dat CSC___finals.data
+do
+  datadir=${datadir___filename%%___*}
+  filename=${datadir___filename#${datadir}___}
+  varname=url_to_${filename//[-.]/_}
+  absfilepath=$PGSHOME/database/common/$datadir/$filename
+  url=${!varname}
+  curl_args+=(
+      --output "$absfilepath"
+      "$url"
+  )
+done
+
+curl "${curl_args[@]}"
