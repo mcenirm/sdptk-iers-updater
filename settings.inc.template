@@ -30,3 +30,5 @@ url_to_finals_data='{{ .../finals.data }}'
 #extra_curl_options=(
 #    --ssl
 #)
+# Note: FTP servers do not identify their timezone properly
+# so curl might set the mtime incorrectly.
