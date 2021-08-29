@@ -35,6 +35,7 @@ source -- "$settings_file"
 curl_args=(
     --silent
     --show-error
+    --fail
     --remote-time
 )
 
