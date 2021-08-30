@@ -44,30 +44,33 @@ then
   curl_args+=( "${extra_curl_options[@]}" )
 fi
 
-declare -a expected_files
+rv=0
 for datadir___filename in TD___tai-utc.dat CSC___finals.data
 do
   datadir=${datadir___filename%%___*}
   filename=${datadir___filename#${datadir}___}
   varname=url_to_${filename//[-.]/_}
   absfilepath=$PGSHOME/database/common/$datadir/$filename
-  expected_files+=( "$absfilepath" )
   urlpath=${absfilepath}.url
   headerspath=${absfilepath}.headers
   url=${!varname}
-  curl_args+=(
-      --dump-header "$headerspath"
-      --output "$absfilepath"
+
+  newabsfilepath=${absfilepath}.NEW
+  newurlpath=${urlpath}.NEW
+  new_curl_args=(
+      --output "$newabsfilepath"
       "$url"
   )
-  printf '%s\n' "$url" > "$urlpath"
+  printf '%s\n' "$url" > "$newurlpath"
+
+  if curl "${curl_args[@]}" "${new_curl_args[@]}"
+  then
+    mv -f -- "$newabsfilepath" "$absfilepath"
+    mv -f -- "$newurlpath" "$urlpath"
+  else
+    rv=$?
+    echo >&2 'error: fetch failed:' "$url"
+  fi
 done
 
-if curl "${curl_args[@]}"
-then
-  : # quiet on success
-else
-  rv=$?
-  ls -ld -- "${expected_files[@]}" || :
-  exit $rv
-fi
+exit $rv
