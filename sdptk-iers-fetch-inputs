@@ -44,17 +44,30 @@ then
   curl_args+=( "${extra_curl_options[@]}" )
 fi
 
+declare -a expected_files
 for datadir___filename in TD___tai-utc.dat CSC___finals.data
 do
   datadir=${datadir___filename%%___*}
   filename=${datadir___filename#${datadir}___}
   varname=url_to_${filename//[-.]/_}
   absfilepath=$PGSHOME/database/common/$datadir/$filename
+  expected_files+=( "$absfilepath" )
+  urlpath=${absfilepath}.url
+  headerspath=${absfilepath}.headers
   url=${!varname}
   curl_args+=(
+      --dump-header "$headerspath"
       --output "$absfilepath"
       "$url"
   )
+  printf '%s\n' "$url" > "$urlpath"
 done
 
-curl "${curl_args[@]}"
+if curl "${curl_args[@]}"
+then
+  : # quiet on success
+else
+  rv=$?
+  ls -ld -- "${expected_files[@]}" || :
+  exit $rv
+fi
